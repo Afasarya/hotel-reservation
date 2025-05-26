@@ -27,19 +27,29 @@ class AdminRoomTypeController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'description' => 'required|string',
+            'description' => 'nullable|string',
             'price_per_night' => 'required|numeric|min:0',
             'capacity' => 'required|integer|min:1',
             'total_rooms' => 'required|integer|min:1',
-            'facilities' => 'required|array',
+            'size' => 'nullable|numeric|min:0',
+            'facilities' => 'nullable|array',
             'facilities.*' => 'string',
-            'images' => 'nullable|array',
-            'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+            'main_image' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+            'additional_images' => 'nullable|array|max:5',
+            'additional_images.*' => 'image|mimes:jpeg,png,jpg|max:2048',
         ]);
         
         $images = [];
-        if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $image) {
+        
+        // Handle main image
+        if ($request->hasFile('main_image')) {
+            $mainImagePath = $request->file('main_image')->store('room-types', 'public');
+            $images[] = $mainImagePath;
+        }
+        
+        // Handle additional images
+        if ($request->hasFile('additional_images')) {
+            foreach ($request->file('additional_images') as $image) {
                 $path = $image->store('room-types', 'public');
                 $images[] = $path;
             }
@@ -51,7 +61,7 @@ class AdminRoomTypeController extends Controller
             'price_per_night' => $request->price_per_night,
             'capacity' => $request->capacity,
             'total_rooms' => $request->total_rooms,
-            'facilities' => $request->facilities,
+            'facilities' => $request->facilities ?? [],
             'images' => $images,
             'is_active' => true,
         ]);

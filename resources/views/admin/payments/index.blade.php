@@ -5,7 +5,7 @@
                 Payment Management
             </h2>
             <div class="text-sm text-secondary-600">
-                Total payments tracked
+                {{ $payments->total() }} total payments
             </div>
         </div>
     </x-slot>
@@ -97,58 +97,67 @@
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-primary-100">
-                            <!-- Sample payment rows - replace with actual data -->
-                            <tr class="hover:bg-primary-50 transition duration-300">
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm font-medium text-secondary-900">PAY-001</div>
-                                    <div class="text-sm text-secondary-500">Midtrans Order ID</div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-secondary-900">BK-001</div>
-                                    <div class="text-sm text-secondary-500">Standard Room</div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-secondary-900">John Doe</div>
-                                    <div class="text-sm text-secondary-500">john@example.com</div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm font-medium text-secondary-900">Rp 500,000</div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
-                                        Paid
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-secondary-900">Dec 26, 2024</div>
-                                    <div class="text-sm text-secondary-500">10:30 AM</div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                                    <a href="#" class="inline-flex items-center px-3 py-1 bg-primary-600 text-white text-xs font-medium rounded hover:bg-primary-700 transition duration-300">
-                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                                        </svg>
-                                        View
-                                    </a>
-                                    <a href="#" class="inline-flex items-center px-3 py-1 bg-secondary-600 text-white text-xs font-medium rounded hover:bg-secondary-700 transition duration-300">
-                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                        </svg>
-                                        Receipt
-                                    </a>
-                                </td>
-                            </tr>
-                            <!-- Add more sample rows or loop through actual data -->
+                            @forelse($payments as $payment)
+                                <tr class="hover:bg-primary-50 transition duration-300">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm font-medium text-secondary-900">{{ $payment->payment_code }}</div>
+                                        <div class="text-sm text-secondary-500">{{ $payment->midtrans_order_id ?? 'N/A' }}</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-secondary-900">{{ $payment->booking->booking_code }}</div>
+                                        <div class="text-sm text-secondary-500">{{ $payment->booking->roomType->name }}</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-secondary-900">{{ $payment->booking->user->name }}</div>
+                                        <div class="text-sm text-secondary-500">{{ $payment->booking->user->email }}</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm font-medium text-secondary-900">Rp {{ number_format($payment->amount, 0, ',', '.') }}</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="px-2 py-1 text-xs font-medium rounded-full
+                                            @if($payment->status === 'paid') bg-green-100 text-green-800
+                                            @elseif($payment->status === 'pending') bg-yellow-100 text-yellow-800
+                                            @elseif($payment->status === 'expired') bg-gray-100 text-gray-800
+                                            @else bg-red-100 text-red-800
+                                            @endif">
+                                            {{ ucfirst($payment->status) }}
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-secondary-900">{{ $payment->created_at->format('M j, Y') }}</div>
+                                        <div class="text-sm text-secondary-500">{{ $payment->created_at->format('H:i A') }}</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                                        <a href="{{ route('admin.payments.show', $payment) }}" class="inline-flex items-center px-3 py-1 bg-primary-600 text-white text-xs font-medium rounded hover:bg-primary-700 transition duration-300">
+                                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                            </svg>
+                                            View
+                                        </a>
+                                        <a href="{{ route('admin.payments.receipt', $payment) }}" class="inline-flex items-center px-3 py-1 bg-secondary-600 text-white text-xs font-medium rounded hover:bg-secondary-700 transition duration-300">
+                                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                            </svg>
+                                            Receipt
+                                        </a>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="7" class="px-6 py-10 text-center">
+                                        <div class="text-secondary-500">No payment records found</div>
+                                    </td>
+                                </tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>
                 
-                <!-- Pagination placeholder -->
+                <!-- Pagination -->
                 <div class="px-6 py-4 border-t border-primary-100">
-                    <div class="text-sm text-secondary-600">
-                        Showing payment records
-                    </div>
+                    {{ $payments->withQueryString()->links() }}
                 </div>
             </div>
         </div>

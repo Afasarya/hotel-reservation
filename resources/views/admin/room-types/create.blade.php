@@ -95,16 +95,16 @@
 
                             <!-- Number of Rooms -->
                             <div>
-                                <label for="room_count" class="block text-sm font-medium text-secondary-700 mb-2">Number of Rooms *</label>
+                                <label for="total_rooms" class="block text-sm font-medium text-secondary-700 mb-2">Number of Rooms *</label>
                                 <input type="number" 
-                                       name="room_count" 
-                                       id="room_count"
-                                       value="{{ old('room_count') }}"
+                                       name="total_rooms" 
+                                       id="total_rooms"
+                                       value="{{ old('total_rooms') }}"
                                        required
                                        min="1"
                                        class="w-full rounded-lg border-secondary-300 focus:border-primary-500 focus:ring-primary-500"
                                        placeholder="10">
-                                @error('room_count')
+                                @error('total_rooms')
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
                             </div>
