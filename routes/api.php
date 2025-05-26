@@ -41,55 +41,68 @@ use App\Http\Controllers\Api\Admin\DashboardController;
 */
 
 // Public routes
-Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login']);
+Route::post('/register', [AuthController::class, 'register'])->name('api.register');
+Route::post('/login', [AuthController::class, 'login'])->name('api.login');
 
 // Room Types - Public access
-Route::get('/room-types', [RoomTypeController::class, 'index']);
-Route::get('/room-types/{roomType}', [RoomTypeController::class, 'show']);
+Route::get('/room-types', [RoomTypeController::class, 'index'])->name('api.room-types.index');
+Route::get('/room-types/{roomType}', [RoomTypeController::class, 'show'])->name('api.room-types.show');
 
 // Payment webhook (public for Midtrans callback)
-Route::post('/payment/webhook', [PaymentController::class, 'webhook']);
+Route::post('/payment/webhook', [PaymentController::class, 'webhook'])->name('api.payment.webhook');
 
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
     // Authentication
-    Route::post('/logout', [AuthController::class, 'logout']);
-    Route::get('/profile', [AuthController::class, 'profile']);
-    Route::put('/profile', [AuthController::class, 'updateProfile']);
+    Route::post('/logout', [AuthController::class, 'logout'])->name('api.logout');
+    Route::get('/profile', [AuthController::class, 'profile'])->name('api.profile');
+    Route::put('/profile', [AuthController::class, 'updateProfile'])->name('api.profile.update');
 
-    // Bookings
-    Route::apiResource('bookings', BookingController::class);
-    Route::post('/bookings/{booking}/cancel', [BookingController::class, 'cancel']);
+    // Bookings - RESTful resource routes with explicit names
+    Route::apiResource('bookings', BookingController::class)->names([
+        'index' => 'api.bookings.index',
+        'store' => 'api.bookings.store',
+        'show' => 'api.bookings.show',
+        'update' => 'api.bookings.update',
+        'destroy' => 'api.bookings.destroy',
+    ]);
+    Route::patch('/bookings/{booking}/cancel', [BookingController::class, 'cancel'])->name('api.bookings.cancel');
 
-    // Payments
-    Route::get('/payments/{payment}', [PaymentController::class, 'show']);
-    Route::post('/payments/create', [PaymentController::class, 'create']);
-    Route::get('/payments/{payment}/status', [PaymentController::class, 'status']);
+    // Payments - RESTful resource routes with explicit names
+    Route::apiResource('payments', PaymentController::class)->only(['index', 'store', 'show'])->names([
+        'index' => 'api.payments.index',
+        'store' => 'api.payments.store',
+        'show' => 'api.payments.show',
+    ]);
+    Route::get('/payments/{payment}/status', [PaymentController::class, 'status'])->name('api.payments.status');
 
     // Admin routes
-    Route::middleware('admin')->prefix('admin')->group(function () {
+    Route::middleware('admin')->prefix('admin')->name('api.admin.')->group(function () {
         // Dashboard
-        Route::get('/dashboard', [DashboardController::class, 'index']);
-        Route::get('/dashboard/stats', [DashboardController::class, 'stats']);
+        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+        Route::get('/dashboard/stats', [DashboardController::class, 'stats'])->name('dashboard.stats');
 
         // Room Types Management
-        Route::apiResource('room-types', RoomTypeController::class)->except(['index', 'show']);
+        Route::apiResource('room-types', RoomTypeController::class)->except(['index', 'show'])->names([
+            'store' => 'room-types.store',
+            'update' => 'room-types.update',
+            'destroy' => 'room-types.destroy',
+        ]);
 
         // Bookings Management
-        Route::get('/bookings', [BookingController::class, 'adminIndex']);
-        Route::put('/bookings/{booking}/confirm', [BookingController::class, 'confirm']);
-        Route::put('/bookings/{booking}/check-in', [BookingController::class, 'checkIn']);
-        Route::put('/bookings/{booking}/check-out', [BookingController::class, 'checkOut']);
-        Route::put('/bookings/{booking}/cancel', [BookingController::class, 'adminCancel']);
+        Route::get('/bookings', [BookingController::class, 'adminIndex'])->name('bookings.index');
+        Route::patch('/bookings/{booking}/confirm', [BookingController::class, 'confirm'])->name('bookings.confirm');
+        Route::patch('/bookings/{booking}/check-in', [BookingController::class, 'checkIn'])->name('bookings.check-in');
+        Route::patch('/bookings/{booking}/check-out', [BookingController::class, 'checkOut'])->name('bookings.check-out');
+        Route::patch('/bookings/{booking}/cancel', [BookingController::class, 'adminCancel'])->name('bookings.cancel');
 
         // Payments Management
-        Route::get('/payments', [PaymentController::class, 'adminIndex']);
-        Route::get('/payments/{payment}/receipt', [PaymentController::class, 'receipt']);
+        Route::get('/payments', [PaymentController::class, 'adminIndex'])->name('payments.index');
+        Route::get('/payments/{payment}/receipt', [PaymentController::class, 'receipt'])->name('payments.receipt');
 
         // Users Management
-        Route::get('/users', [AuthController::class, 'adminUsers']);
-        Route::put('/users/{user}/toggle-status', [AuthController::class, 'toggleUserStatus']);
+        Route::get('/users', [AuthController::class, 'adminUsers'])->name('users.index');
+        Route::patch('/users/{user}/toggle-status', [AuthController::class, 'toggleUserStatus'])->name('users.toggle-status');
     });
 });
 
@@ -99,4 +112,4 @@ Route::fallback(function () {
         'success' => false,
         'message' => 'API endpoint not found',
     ], 404);
-}); 
+})->name('api.fallback'); 

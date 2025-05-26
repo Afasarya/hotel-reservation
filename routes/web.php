@@ -9,6 +9,9 @@ use App\Http\Controllers\Web\Admin\AdminDashboardController;
 use App\Http\Controllers\Web\Admin\AdminRoomTypeController;
 use App\Http\Controllers\Web\Admin\AdminBookingController;
 use App\Http\Controllers\Web\Admin\AdminPaymentController;
+use App\Http\Controllers\Web\Admin\AdminUserController;
+use App\Http\Controllers\Web\Admin\AdminNotificationController;
+use App\Http\Controllers\Web\Admin\AdminAvailabilityController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -42,6 +45,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     
     // Admin Routes
     Route::middleware('admin')->prefix('admin')->name('admin.')->group(function () {
+        // Dashboard
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
         
         // Room Types Management
@@ -59,6 +63,21 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/payments', [AdminPaymentController::class, 'index'])->name('payments.index');
         Route::get('/payments/{payment}', [AdminPaymentController::class, 'show'])->name('payments.show');
         Route::get('/payments/{payment}/receipt', [AdminPaymentController::class, 'receipt'])->name('payments.receipt');
+        
+        // Users Management
+        Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
+        Route::get('/users/{user}', [AdminUserController::class, 'show'])->name('users.show');
+        Route::patch('/users/{user}/toggle-status', [AdminUserController::class, 'toggleStatus'])->name('users.toggle-status');
+        
+        // Notifications
+        Route::get('/notifications', [AdminNotificationController::class, 'index'])->name('notifications.index');
+        Route::post('/notifications/mark-read', [AdminNotificationController::class, 'markAsRead'])->name('notifications.mark-read');
+        
+        // Availability Management
+        Route::get('/availability', [AdminAvailabilityController::class, 'index'])->name('availability.index');
+        Route::get('/availability/calendar', [AdminAvailabilityController::class, 'calendar'])->name('availability.calendar');
+        Route::patch('/rooms/{room}/status', [AdminAvailabilityController::class, 'updateRoomStatus'])->name('rooms.update-status');
+        Route::patch('/rooms/bulk-status', [AdminAvailabilityController::class, 'bulkUpdateStatus'])->name('rooms.bulk-status');
     });
 });
 

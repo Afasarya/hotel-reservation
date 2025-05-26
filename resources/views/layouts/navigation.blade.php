@@ -32,6 +32,15 @@
                         <x-nav-link :href="route('admin.payments.index')" :active="request()->routeIs('admin.payments.*')" class="text-secondary-700 hover:text-primary-600">
                             {{ __('Payments') }}
                         </x-nav-link>
+                        <x-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')" class="text-secondary-700 hover:text-primary-600">
+                            {{ __('Users') }}
+                        </x-nav-link>
+                        <x-nav-link :href="route('admin.availability.index')" :active="request()->routeIs('admin.availability.*')" class="text-secondary-700 hover:text-primary-600">
+                            {{ __('Availability') }}
+                        </x-nav-link>
+                        <x-nav-link :href="route('admin.notifications.index')" :active="request()->routeIs('admin.notifications.*')" class="text-secondary-700 hover:text-primary-600">
+                            {{ __('Notifications') }}
+                        </x-nav-link>
                     @else
                         <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" class="text-secondary-700 hover:text-primary-600">
                             {{ __('Home') }}
@@ -119,6 +128,15 @@
                 </x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('admin.payments.index')" :active="request()->routeIs('admin.payments.*')">
                     {{ __('Payments') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')">
+                    {{ __('Users') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('admin.availability.index')" :active="request()->routeIs('admin.availability.*')">
+                    {{ __('Availability') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('admin.notifications.index')" :active="request()->routeIs('admin.notifications.*')">
+                    {{ __('Notifications') }}
                 </x-responsive-nav-link>
             @else
                 <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">

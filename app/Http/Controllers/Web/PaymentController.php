@@ -54,31 +54,23 @@ class PaymentController extends Controller
         }
         
         try {
-            // Create payment record
-            $payment = Payment::create([
-                'booking_id' => $booking->id,
-                'payment_code' => 'PAY' . strtoupper(uniqid()),
-                'amount' => $booking->total_amount,
-                'status' => 'pending',
-                'expired_at' => now()->addHours(24),
-            ]);
+            // Create Midtrans transaction using the booking
+            $midtransResponse = $this->midtransService->createTransaction($booking);
             
-            // Create Midtrans transaction
-            $midtransResponse = $this->midtransService->createTransaction($payment);
+            $payment = $midtransResponse['payment'];
+            $snapToken = $midtransResponse['snap_token'];
             
-            if ($midtransResponse) {
-                $payment->update([
-                    'midtrans_order_id' => $midtransResponse['order_id'],
-                    'midtrans_response' => $midtransResponse,
-                ]);
-                
-                return view('payments.process', compact('payment', 'midtransResponse'));
-            }
+            // Prepare response data for the view
+            $responseData = [
+                'token' => $snapToken,
+                'order_id' => $payment->midtrans_order_id,
+                'redirect_url' => $midtransResponse['redirect_url'] ?? null,
+            ];
             
-            return back()->withErrors(['error' => 'Failed to create payment. Please try again.']);
+            return view('payments.process', compact('payment', 'midtransResponse'))->with('midtransResponse', $responseData);
             
         } catch (\Exception $e) {
-            return back()->withErrors(['error' => 'Payment processing failed. Please try again.']);
+            return back()->withErrors(['error' => 'Payment processing failed: ' . $e->getMessage()]);
         }
     }
     
