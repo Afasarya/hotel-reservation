@@ -1,0 +1,1837 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "AoraGrand Hotel Booking API",
+        "description": "RESTful API for AoraGrand Hotel Booking System with Midtrans payment integration",
+        "contact": {
+            "name": "AoraGrand Hotel Support",
+            "email": "admin@aoragrand.com"
+        },
+        "license": {
+            "name": "MIT",
+            "url": "https://opensource.org/licenses/MIT"
+        },
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:8000",
+            "description": "Local development server"
+        },
+        {
+            "url": "https://api.aoragrand.com",
+            "description": "Production server"
+        }
+    ],
+    "paths": {
+        "/api/admin/dashboard": {
+            "get": {
+                "tags": [
+                    "Admin Dashboard"
+                ],
+                "summary": "Get admin dashboard overview",
+                "operationId": "f6e3ffeb3c9fb988ca2a77ad48e2c04c",
+                "responses": {
+                    "200": {
+                        "description": "Dashboard data retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Dashboard data retrieved successfully"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "overview": {
+                                                    "properties": {
+                                                        "total_users": {
+                                                            "type": "integer",
+                                                            "example": 150
+                                                        },
+                                                        "total_bookings": {
+                                                            "type": "integer",
+                                                            "example": 75
+                                                        },
+                                                        "total_revenue": {
+                                                            "type": "number",
+                                                            "format": "float",
+                                                            "example": 50000000
+                                                        },
+                                                        "occupancy_rate": {
+                                                            "type": "number",
+                                                            "format": "float",
+                                                            "example": 85.5
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "recent_bookings": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/Booking"
+                                                    }
+                                                },
+                                                "room_status": {
+                                                    "properties": {
+                                                        "available": {
+                                                            "type": "integer",
+                                                            "example": 45
+                                                        },
+                                                        "occupied": {
+                                                            "type": "integer",
+                                                            "example": 10
+                                                        },
+                                                        "maintenance": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "cleaning": {
+                                                            "type": "integer",
+                                                            "example": 0
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Unauthorized - Admin access required"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/admin/dashboard/stats": {
+            "get": {
+                "tags": [
+                    "Admin Dashboard"
+                ],
+                "summary": "Get detailed statistics",
+                "operationId": "7049f743c35dc1ca33c9b828cb34dee9",
+                "parameters": [
+                    {
+                        "name": "period",
+                        "in": "query",
+                        "description": "Statistics period",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "daily",
+                                "weekly",
+                                "monthly"
+                            ],
+                            "example": "monthly"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Statistics retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Statistics retrieved successfully"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "booking_trends": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "revenue_trends": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "room_type_popularity": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "payment_methods": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/register": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Register a new user",
+                "operationId": "8e4e3cb7b46126f4696379d3c7eeb4ad",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "email",
+                                    "password",
+                                    "password_confirmation"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "John Doe"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "john@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "password123"
+                                    },
+                                    "password_confirmation": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "password123"
+                                    },
+                                    "phone": {
+                                        "type": "string",
+                                        "example": "+62812345678"
+                                    },
+                                    "address": {
+                                        "type": "string",
+                                        "example": "Jl. Contoh No. 123"
+                                    },
+                                    "date_of_birth": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "1990-01-01"
+                                    },
+                                    "gender": {
+                                        "type": "string",
+                                        "enum": [
+                                            "male",
+                                            "female"
+                                        ],
+                                        "example": "male"
+                                    },
+                                    "identity_number": {
+                                        "type": "string",
+                                        "example": "1234567890123456"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "User registered successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "User registered successfully"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "user": {
+                                                    "$ref": "#/components/schemas/User"
+                                                },
+                                                "token": {
+                                                    "type": "string",
+                                                    "example": "1|abc123..."
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                }
+            }
+        },
+        "/api/login": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Login user",
+                "operationId": "222b2625838e3c57e017987f73598fda",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "admin@aoragrand.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "password123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Login successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Login successful"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "user": {
+                                                    "$ref": "#/components/schemas/User"
+                                                },
+                                                "token": {
+                                                    "type": "string",
+                                                    "example": "1|abc123..."
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid credentials"
+                    }
+                }
+            }
+        },
+        "/api/logout": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Logout user",
+                "operationId": "ad65cbbd4e9f201619eae184a5961a98",
+                "responses": {
+                    "200": {
+                        "description": "Logout successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Logout successful"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/profile": {
+            "get": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Get user profile",
+                "operationId": "94a5f4c5f5e5755cf43698cf9bc49e9d",
+                "responses": {
+                    "200": {
+                        "description": "Profile retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Profile retrieved successfully"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/User"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Update user profile",
+                "operationId": "4ac9a00014f69a885c9373fdefcaf6f9",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "John Doe"
+                                    },
+                                    "phone": {
+                                        "type": "string",
+                                        "example": "+62812345678"
+                                    },
+                                    "address": {
+                                        "type": "string",
+                                        "example": "Jl. Contoh No. 123"
+                                    },
+                                    "date_of_birth": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "1990-01-01"
+                                    },
+                                    "gender": {
+                                        "type": "string",
+                                        "enum": [
+                                            "male",
+                                            "female"
+                                        ],
+                                        "example": "male"
+                                    },
+                                    "identity_number": {
+                                        "type": "string",
+                                        "example": "1234567890123456"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Profile updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Profile updated successfully"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/User"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/bookings": {
+            "get": {
+                "tags": [
+                    "Bookings"
+                ],
+                "summary": "Get user's bookings",
+                "operationId": "4535e967ef15bc76dadf1efa40192f0d",
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "description": "Filter by booking status",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "pending",
+                                "confirmed",
+                                "checked_in",
+                                "checked_out",
+                                "cancelled"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Bookings retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Bookings retrieved successfully"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Booking"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Bookings"
+                ],
+                "summary": "Create a new booking",
+                "operationId": "43e6dcca842886074084b8db86af7802",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "room_type_id",
+                                    "check_in_date",
+                                    "check_out_date",
+                                    "guests"
+                                ],
+                                "properties": {
+                                    "room_type_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "check_in_date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2023-12-01"
+                                    },
+                                    "check_out_date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2023-12-03"
+                                    },
+                                    "guests": {
+                                        "type": "integer",
+                                        "example": 2
+                                    },
+                                    "special_requests": {
+                                        "type": "string",
+                                        "example": "Late check-in"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Booking created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Booking created successfully"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Booking"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Room not available or validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/bookings/{id}": {
+            "get": {
+                "tags": [
+                    "Bookings"
+                ],
+                "summary": "Get a specific booking",
+                "operationId": "c383a28985575aa1a16f783b2f762554",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Booking ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Booking retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Booking retrieved successfully"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Booking"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Booking not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Bookings"
+                ],
+                "summary": "Update a booking",
+                "operationId": "de1ebc78c3adcb535d12d1c8dae98055",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Booking ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "special_requests": {
+                                        "type": "string",
+                                        "example": "Late check-in"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Booking updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Booking updated successfully"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Booking"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Cannot update booking"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Bookings"
+                ],
+                "summary": "Cancel a booking",
+                "operationId": "a53474f63d3a2fe2275fc0b6c8cc16cb",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Booking ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Booking cancelled successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Booking cancelled successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Cannot cancel booking"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/payments/create": {
+            "post": {
+                "tags": [
+                    "Payments"
+                ],
+                "summary": "Create payment for booking",
+                "operationId": "26dedad4479cbe8f6d6a694bd352a654",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "booking_id"
+                                ],
+                                "properties": {
+                                    "booking_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Payment created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Payment created successfully"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "payment_id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "snap_token": {
+                                                    "type": "string",
+                                                    "example": "abc123..."
+                                                },
+                                                "redirect_url": {
+                                                    "type": "string",
+                                                    "example": "https://app.sandbox.midtrans.com/snap/v2/vtweb/abc123..."
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid booking or payment already exists"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/payments/{id}": {
+            "get": {
+                "tags": [
+                    "Payments"
+                ],
+                "summary": "Get payment details",
+                "operationId": "33da95d13a42b4c3898427d7cb9516a8",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Payment ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Payment retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Payment retrieved successfully"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "payment_code": {
+                                                    "type": "string",
+                                                    "example": "PAY20231201XYZ789"
+                                                },
+                                                "amount": {
+                                                    "type": "number",
+                                                    "format": "float",
+                                                    "example": 1000000
+                                                },
+                                                "status": {
+                                                    "type": "string",
+                                                    "example": "paid"
+                                                },
+                                                "payment_method": {
+                                                    "type": "string",
+                                                    "example": "credit_card"
+                                                },
+                                                "paid_at": {
+                                                    "type": "string",
+                                                    "format": "date-time",
+                                                    "example": "2023-01-01 12:00:00"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Payment not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/payments/{id}/status": {
+            "get": {
+                "tags": [
+                    "Payments"
+                ],
+                "summary": "Check payment status",
+                "operationId": "adc18ab90fbf9829221668152a1b1dfc",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Payment ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Payment status retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Payment status retrieved successfully"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "status": {
+                                                    "type": "string",
+                                                    "example": "paid"
+                                                },
+                                                "midtrans_status": {
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/payment/webhook": {
+            "post": {
+                "tags": [
+                    "Payments"
+                ],
+                "summary": "Midtrans payment webhook",
+                "operationId": "5deda2e59a09b46ff3884e3ff7432035",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "order_id": {
+                                        "type": "string",
+                                        "example": "ORDER-20231201123456-ABCD"
+                                    },
+                                    "status_code": {
+                                        "type": "string",
+                                        "example": "200"
+                                    },
+                                    "gross_amount": {
+                                        "type": "string",
+                                        "example": "1000000.00"
+                                    },
+                                    "signature_key": {
+                                        "type": "string",
+                                        "example": "abc123..."
+                                    },
+                                    "transaction_status": {
+                                        "type": "string",
+                                        "example": "settlement"
+                                    },
+                                    "transaction_id": {
+                                        "type": "string",
+                                        "example": "xyz789..."
+                                    },
+                                    "payment_type": {
+                                        "type": "string",
+                                        "example": "credit_card"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Webhook processed successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Webhook processed successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/room-types": {
+            "get": {
+                "tags": [
+                    "Room Types"
+                ],
+                "summary": "Get all room types",
+                "operationId": "ca013b8668b9235311faca0f7063a058",
+                "parameters": [
+                    {
+                        "name": "check_in_date",
+                        "in": "query",
+                        "description": "Check-in date to check availability",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "2023-12-01"
+                        }
+                    },
+                    {
+                        "name": "check_out_date",
+                        "in": "query",
+                        "description": "Check-out date to check availability",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "2023-12-03"
+                        }
+                    },
+                    {
+                        "name": "guests",
+                        "in": "query",
+                        "description": "Number of guests",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 2
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Room types retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Room types retrieved successfully"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/RoomType"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/admin/room-types": {
+            "post": {
+                "tags": [
+                    "Room Types"
+                ],
+                "summary": "Create a new room type (Admin only)",
+                "operationId": "321fedf14e9293e2e80f625fcf73eae5",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "description",
+                                    "price_per_night",
+                                    "capacity",
+                                    "total_rooms"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Standard Room"
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "example": "Comfortable standard room"
+                                    },
+                                    "price_per_night": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 500000
+                                    },
+                                    "capacity": {
+                                        "type": "integer",
+                                        "example": 2
+                                    },
+                                    "total_rooms": {
+                                        "type": "integer",
+                                        "example": 20
+                                    },
+                                    "facilities": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "example": [
+                                            "AC",
+                                            "TV",
+                                            "WiFi"
+                                        ]
+                                    },
+                                    "images": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "example": [
+                                            "/images/room1.jpg"
+                                        ]
+                                    },
+                                    "is_active": {
+                                        "type": "boolean",
+                                        "example": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Room type created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Room type created successfully"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/RoomType"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Unauthorized - Admin access required"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/room-types/{id}": {
+            "get": {
+                "tags": [
+                    "Room Types"
+                ],
+                "summary": "Get a specific room type",
+                "operationId": "32dfe7550e8eb4648f15f4037cca60ed",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Room type ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "check_in_date",
+                        "in": "query",
+                        "description": "Check-in date to check availability",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "2023-12-01"
+                        }
+                    },
+                    {
+                        "name": "check_out_date",
+                        "in": "query",
+                        "description": "Check-out date to check availability",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "2023-12-03"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Room type retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Room type retrieved successfully"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/RoomType"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Room type not found"
+                    }
+                }
+            }
+        },
+        "/api/admin/room-types/{id}": {
+            "put": {
+                "tags": [
+                    "Room Types"
+                ],
+                "summary": "Update a room type (Admin only)",
+                "operationId": "41ac828c3380f2cfd9e8a5a995b09da3",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Room type ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Standard Room"
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "example": "Comfortable standard room"
+                                    },
+                                    "price_per_night": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 500000
+                                    },
+                                    "capacity": {
+                                        "type": "integer",
+                                        "example": 2
+                                    },
+                                    "total_rooms": {
+                                        "type": "integer",
+                                        "example": 20
+                                    },
+                                    "facilities": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "example": [
+                                            "AC",
+                                            "TV",
+                                            "WiFi"
+                                        ]
+                                    },
+                                    "images": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "example": [
+                                            "/images/room1.jpg"
+                                        ]
+                                    },
+                                    "is_active": {
+                                        "type": "boolean",
+                                        "example": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Room type updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Room type updated successfully"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/RoomType"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Unauthorized - Admin access required"
+                    },
+                    "404": {
+                        "description": "Room type not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Room Types"
+                ],
+                "summary": "Delete a room type (Admin only)",
+                "operationId": "a078198d59db1b0a5926df1bd3dc5bf6",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Room type ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Room type deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Room type deleted successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Unauthorized - Admin access required"
+                    },
+                    "404": {
+                        "description": "Room type not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Booking": {
+                "title": "Booking",
+                "description": "Booking model",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "booking_code": {
+                        "type": "string",
+                        "example": "BK20231201ABC123"
+                    },
+                    "user": {
+                        "$ref": "#/components/schemas/User"
+                    },
+                    "room_type": {
+                        "$ref": "#/components/schemas/RoomType"
+                    },
+                    "room": {
+                        "properties": {
+                            "id": {
+                                "type": "integer",
+                                "example": 1
+                            },
+                            "room_number": {
+                                "type": "string",
+                                "example": "STD101"
+                            },
+                            "status": {
+                                "type": "string",
+                                "example": "available"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "check_in_date": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2023-12-01"
+                    },
+                    "check_out_date": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2023-12-03"
+                    },
+                    "nights": {
+                        "type": "integer",
+                        "example": 2
+                    },
+                    "guests": {
+                        "type": "integer",
+                        "example": 2
+                    },
+                    "total_amount": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 1000000
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "pending",
+                            "confirmed",
+                            "checked_in",
+                            "checked_out",
+                            "cancelled"
+                        ],
+                        "example": "confirmed"
+                    },
+                    "special_requests": {
+                        "type": "string",
+                        "example": "Late check-in"
+                    },
+                    "payment": {
+                        "properties": {
+                            "id": {
+                                "type": "integer",
+                                "example": 1
+                            },
+                            "payment_code": {
+                                "type": "string",
+                                "example": "PAY20231201XYZ789"
+                            },
+                            "status": {
+                                "type": "string",
+                                "example": "paid"
+                            },
+                            "amount": {
+                                "type": "number",
+                                "format": "float",
+                                "example": 1000000
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "confirmed_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2023-01-01T00:00:00.000000Z"
+                    },
+                    "cancelled_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": null
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2023-01-01T00:00:00.000000Z"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2023-01-01T00:00:00.000000Z"
+                    }
+                },
+                "type": "object"
+            },
+            "RoomType": {
+                "title": "Room Type",
+                "description": "Room Type model",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Standard Room"
+                    },
+                    "description": {
+                        "type": "string",
+                        "example": "Comfortable standard room with basic amenities"
+                    },
+                    "price_per_night": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 500000
+                    },
+                    "capacity": {
+                        "type": "integer",
+                        "example": 2
+                    },
+                    "total_rooms": {
+                        "type": "integer",
+                        "example": 20
+                    },
+                    "available_rooms": {
+                        "type": "integer",
+                        "example": 15
+                    },
+                    "facilities": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "example": [
+                            "AC",
+                            "TV",
+                            "WiFi"
+                        ]
+                    },
+                    "images": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "example": [
+                            "/images/room1.jpg",
+                            "/images/room2.jpg"
+                        ]
+                    },
+                    "is_active": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2023-01-01T00:00:00.000000Z"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2023-01-01T00:00:00.000000Z"
+                    }
+                },
+                "type": "object"
+            },
+            "User": {
+                "title": "User",
+                "description": "User model",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "John Doe"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "john@example.com"
+                    },
+                    "phone": {
+                        "type": "string",
+                        "example": "+62812345678"
+                    },
+                    "address": {
+                        "type": "string",
+                        "example": "Jl. Contoh No. 123"
+                    },
+                    "date_of_birth": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "1990-01-01"
+                    },
+                    "gender": {
+                        "type": "string",
+                        "enum": [
+                            "male",
+                            "female"
+                        ],
+                        "example": "male"
+                    },
+                    "identity_number": {
+                        "type": "string",
+                        "example": "1234567890123456"
+                    },
+                    "role": {
+                        "type": "string",
+                        "enum": [
+                            "admin",
+                            "user"
+                        ],
+                        "example": "user"
+                    },
+                    "is_active": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "email_verified_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2023-01-01T00:00:00.000000Z"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2023-01-01T00:00:00.000000Z"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2023-01-01T00:00:00.000000Z"
+                    }
+                },
+                "type": "object"
+            }
+        },
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "description": "Enter token in format: Bearer {token}",
+                "bearerFormat": "JWT",
+                "scheme": "bearer"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Admin Dashboard",
+            "description": "API Endpoints for admin dashboard and statistics"
+        },
+        {
+            "name": "Authentication",
+            "description": "API Endpoints for user authentication"
+        },
+        {
+            "name": "Bookings",
+            "description": "API Endpoints for booking management"
+        },
+        {
+            "name": "Payments",
+            "description": "API Endpoints for payment processing with Midtrans"
+        },
+        {
+            "name": "Room Types",
+            "description": "API Endpoints for room types management"
+        }
+    ]
+}
